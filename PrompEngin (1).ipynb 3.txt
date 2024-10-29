@@ -1,0 +1,846 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "232d406e-170e-4c58-983a-b4f1d27dcb23",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "import boto3\n",
+    "from botocore.exceptions import ClientError\n",
+    "import json\n",
+    "\n",
+    "def get_secret(secret_name):\n",
+    "    region_name = \"us-east-1\"\n",
+    "\n",
+    "    # Create a Secrets Manager client\n",
+    "    session = boto3.session.Session()\n",
+    "    client = session.client(\n",
+    "        service_name='secretsmanager',\n",
+    "        region_name=region_name\n",
+    "    )\n",
+    "\n",
+    "    try:\n",
+    "        get_secret_value_response = client.get_secret_value(\n",
+    "            SecretId=secret_name\n",
+    "        )\n",
+    "    except ClientError as e:\n",
+    "        raise e\n",
+    "\n",
+    "    secret = get_secret_value_response['SecretString']\n",
+    "    \n",
+    "    return json.loads(secret)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "1909fb10-21aa-488d-a0ef-05a02f5d16e8",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Collecting openai\n",
+      "  Downloading openai-1.52.1-py3-none-any.whl.metadata (24 kB)\n",
+      "Requirement already satisfied: anyio<5,>=3.5.0 in /home/ec2-user/anaconda3/envs/python3/lib/python3.10/site-packages (from openai) (4.4.0)\n",
+      "Collecting distro<2,>=1.7.0 (from openai)\n",
+      "  Downloading distro-1.9.0-py3-none-any.whl.metadata (6.8 kB)\n",
+      "Requirement already satisfied: httpx<1,>=0.23.0 in /home/ec2-user/anaconda3/envs/python3/lib/python3.10/site-packages (from openai) (0.27.0)\n",
+      "Collecting jiter<1,>=0.4.0 (from openai)\n",
+      "  Downloading jiter-0.6.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (5.2 kB)\n",
+      "Requirement already satisfied: pydantic<3,>=1.9.0 in /home/ec2-user/anaconda3/envs/python3/lib/python3.10/site-packages (from openai) (2.9.1)\n",
+      "Requirement already satisfied: sniffio in /home/ec2-user/anaconda3/envs/python3/lib/python3.10/site-packages (from openai) (1.3.1)\n",
+      "Requirement already satisfied: tqdm>4 in /home/ec2-user/anaconda3/envs/python3/lib/python3.10/site-packages (from openai) (4.66.4)\n",
+      "Requirement already satisfied: typing-extensions<5,>=4.11 in /home/ec2-user/anaconda3/envs/python3/lib/python3.10/site-packages (from openai) (4.12.2)\n",
+      "Requirement already satisfied: idna>=2.8 in /home/ec2-user/anaconda3/envs/python3/lib/python3.10/site-packages (from anyio<5,>=3.5.0->openai) (3.7)\n",
+      "Requirement already satisfied: exceptiongroup>=1.0.2 in /home/ec2-user/anaconda3/envs/python3/lib/python3.10/site-packages (from anyio<5,>=3.5.0->openai) (1.2.2)\n",
+      "Requirement already satisfied: certifi in /home/ec2-user/anaconda3/envs/python3/lib/python3.10/site-packages (from httpx<1,>=0.23.0->openai) (2024.7.4)\n",
+      "Requirement already satisfied: httpcore==1.* in /home/ec2-user/anaconda3/envs/python3/lib/python3.10/site-packages (from httpx<1,>=0.23.0->openai) (1.0.5)\n",
+      "Requirement already satisfied: h11<0.15,>=0.13 in /home/ec2-user/anaconda3/envs/python3/lib/python3.10/site-packages (from httpcore==1.*->httpx<1,>=0.23.0->openai) (0.14.0)\n",
+      "Requirement already satisfied: annotated-types>=0.6.0 in /home/ec2-user/anaconda3/envs/python3/lib/python3.10/site-packages (from pydantic<3,>=1.9.0->openai) (0.7.0)\n",
+      "Requirement already satisfied: pydantic-core==2.23.3 in /home/ec2-user/anaconda3/envs/python3/lib/python3.10/site-packages (from pydantic<3,>=1.9.0->openai) (2.23.3)\n",
+      "Downloading openai-1.52.1-py3-none-any.whl (386 kB)\n",
+      "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m386.9/386.9 kB\u001b[0m \u001b[31m23.8 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+      "\u001b[?25hDownloading distro-1.9.0-py3-none-any.whl (20 kB)\n",
+      "Downloading jiter-0.6.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (325 kB)\n",
+      "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m325.2/325.2 kB\u001b[0m \u001b[31m42.3 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
+      "\u001b[?25hInstalling collected packages: jiter, distro, openai\n",
+      "Successfully installed distro-1.9.0 jiter-0.6.1 openai-1.52.1\n",
+      "Note: you may need to restart the kernel to use updated packages.\n"
+     ]
+    }
+   ],
+   "source": [
+    "pip install openai"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "1de78c2c-3adb-4550-b681-93f627f96e24",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "from openai import OpenAI\n",
+    "\n",
+    "openai_api_key  = get_secret('openai')['api_key']\n",
+    "client = OpenAI(api_key=openai_api_key)\n",
+    "model = 'gpt-4o'\n",
+    "temperature = 0\n",
+    "\n",
+    "def openai_help(messages, model=model, temperature =temperature ):\n",
+    "    messages = messages\n",
+    "    response = client.chat.completions.create(\n",
+    "        model=model,\n",
+    "        messages=messages,\n",
+    "        temperature=temperature\n",
+    "\n",
+    "    )\n",
+    "    return response.choices[0].message.content"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "26fa7879-dd42-4a40-8876-5bebc7c6e242",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "from openai import OpenAI\n",
+    "\n",
+    "openai_api_key  = get_secret('openai')['api_key']\n",
+    "client = OpenAI(api_key=openai_api_key)\n",
+    "model = 'gpt-4o'\n",
+    "temperature = 0\n",
+    "\n",
+    "def openai_help(messages, model=model, temperature =temperature ):\n",
+    "    messages = messages\n",
+    "    response = client.chat.completions.create(\n",
+    "        model=model,\n",
+    "        messages=messages,\n",
+    "        temperature=temperature\n",
+    "\n",
+    "    )\n",
+    "    return response.choices[0].message.content"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "c8765acf-21e0-4cbf-bf80-f58339a86a40",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "The capital of the United States is Washington, D.C. This city, distinct from any of the 50 states, serves as the political and administrative heart of the nation. Established by the Constitution of the United States, it houses the three branches of the federal government: the Executive, headed by the President; the Legislative, encompassing Congress; and the Judicial, led by the Supreme Court. Washington, D.C. is also home to numerous national monuments and museums, primarily situated on or around the National Mall.\n"
+     ]
+    }
+   ],
+   "source": [
+    "messages = [\n",
+    "    {\"role\": \"system\", \"content\": \"use tone as PhD Cambridge professor.\"},\n",
+    "    {\"role\": \"user\", \"content\": \"What is the capital of USA\"}\n",
+    "    ]\n",
+    "\n",
+    "print(openai_help(messages, temperature = 0.8))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "71ed9442-5545-45c4-b56a-dbd902a0776c",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "The expression \"3##3\" does not have a standard mathematical interpretation. If you are following a specific pattern or notation, please provide more context or details so I can assist you better.\n"
+     ]
+    }
+   ],
+   "source": [
+    "messages = [\n",
+    "    {\"role\": \"user\", \"content\": \"What is 1##1\"},\n",
+    "    {\"role\": \"assistant\", \"content\": \"it is 11\"},\n",
+    "    {\"role\": \"user\", \"content\": \"What is 2##2\"},\n",
+    "    {\"role\": \"assistant\", \"content\": \"it is 22\"},\n",
+    "    {\"role\": \"user\", \"content\": \"What is 3##3\"},\n",
+    "    ]\n",
+    "print(openai_help(messages))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "3cdb3606-5068-4f51-bb5d-7504403f7668",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "{ \"sentiment\": \"positive\" }\n"
+     ]
+    }
+   ],
+   "source": [
+    "delimiter = '###'\n",
+    "sentence1 = 'I love cat.'\n",
+    "sentence2 = 'I love dog.'\n",
+    "messages = [\n",
+    "    {\"role\": \"system\", \"content\": f\"\"\"analyze the sentiment in a sentence delimitered by {delimiter},\n",
+    "                                     return the result as a JSON document\"\"\"},\n",
+    "    {\"role\": \"user\", \"content\": f\"{delimiter}{sentence1}{delimiter}\"},\n",
+    "    {\"role\": \"assistant\", \"content\": \"{sentiment:positive}\"},\n",
+    "    {\"role\": \"user\", \"content\": f\"{delimiter}{sentence2}{delimiter}\"}\n",
+    "    ]\n",
+    "\n",
+    "print(openai_help(messages))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "542a734f-2bb0-43c1-b946-6a9df6537326",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "f =open(\"tweet_collection.txt\", \"r\")\n",
+    "tweets = f.read()\n",
+    "f.close()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "068869ab-52e3-4399-b8dd-472fe3d3c81a",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "The tweets discuss various political topics related to an upcoming election. One tweet mentions a donation to Kamala Harris and downballot Democrats. Another highlights the local versus national nature of the election. Concerns about voter fraud are raised, referencing an incident involving Glenn Youngkin's son. Kamala Harris's campaign strategy is questioned for its lack of urgency. Joy Reid from MSNBC is accused of promoting a conspiracy theory about Republicans rigging the election. Billie Jean King emphasizes the importance of the election. There are calls for a weapons embargo as an election strategy. Scott Adams expresses doubt about accepting the election outcome if Trump loses. A user questions if someone will leave if a certain candidate wins. Lastly, a tweet mentions the Chief Election Commissioner's comments on election results in Haryana.\n"
+     ]
+    }
+   ],
+   "source": [
+    "tweet_sample = tweets.split(\"\\n\")[:10]\n",
+    "messages = [\n",
+    "    {\"role\": \"system\", \"content\": f\"\"\"provide a brief summary of the tweets delimitered by {delimiter}\"\"\"},\n",
+    "    {\"role\": \"user\", \"content\": f\"{delimiter}{tweet_sample}{delimiter}\"},\n",
+    "    ]\n",
+    "\n",
+    "print(openai_help(messages))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "2fe6beed-2ef9-47d7-b719-548010f9b380",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Tweets focus on election concerns, voter fraud, Kamala Harris's strategy, and conspiracy theories, highlighting political tensions.\n"
+     ]
+    }
+   ],
+   "source": [
+    "tweet_sample = tweets.split(\"\\n\")[:10]\n",
+    "messages = [\n",
+    "    {\"role\": \"system\", \"content\": f\"\"\"provide a brief summary of the tweets delimitered by {delimiter},\n",
+    "                                    limit the summary to 20 words\"\"\"},\n",
+    "    {\"role\": \"user\", \"content\": f\"{delimiter}{tweet_sample}{delimiter}\"},\n",
+    "    ]\n",
+    "\n",
+    "print(openai_help(messages))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "id": "a17a519f-14df-43e9-bdbf-1cd97850fa11",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "The tweets focus on political discussions, with no direct mention of AI. Conversations revolve around election concerns, voter fraud, and political strategies, highlighting the contentious nature of the upcoming election.\n"
+     ]
+    }
+   ],
+   "source": [
+    "tweet_sample = tweets.split(\"\\n\")[:10]\n",
+    "messages = [\n",
+    "    {\"role\": \"system\", \"content\": f\"\"\"provide a brief summary of the tweets delimitered by {delimiter},\n",
+    "                                    focuse on how people discuss about AI,\n",
+    "                                    limit the summary to 50 words\"\"\"},\n",
+    "    {\"role\": \"user\", \"content\": f\"{delimiter}{tweet_sample}{delimiter}\"},\n",
+    "    ]\n",
+    "\n",
+    "print(openai_help(messages))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "id": "752b18f8-a729-497c-926a-4ce3f41bc1eb",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "def flag_help(tweet):\n",
+    "    response = client.moderations.create(\n",
+    "        model=\"omni-moderation-latest\",\n",
+    "        input=tweet)\n",
+    "\n",
+    "    if response.results[0].flagged:\n",
+    "        print('===')\n",
+    "        cat_dict = response.results[0].categories.to_dict()\n",
+    "        for cat in cat_dict.keys():\n",
+    "            if cat_dict.get(cat):\n",
+    "                print (cat)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "id": "a113a70e-2cb7-4e8c-8383-c056632d3682",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "===\n",
+      "violence\n",
+      "===\n",
+      "harassment\n"
+     ]
+    }
+   ],
+   "source": [
+    "for tweet in tweets.split('\\n')[60:70]:\n",
+    "    flag_help(tweet)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "id": "d7d587cc-57e5-4c5f-8adb-c3e00881a052",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "“转发 @MikeNellis: 我说过在选举日之前我会再做一次，所以我们开始吧……\\n\\n我将捐款给 @KamalaHarris 和其他民主党候选人……”\n",
+      "所有政治都是地方性的吗？这次选举不是这样 https://t.co/rzmTMWE3dc https://t.co/NYCmAYPTb9\n",
+      "“转发 @NotHoodlum: 格伦·杨金对选民欺诈非常关心。然而，当他17岁的儿子被抓到时，他却只字未提……”\n",
+      "\"立即阅读：‘她为什么不努力工作’：政治专家质疑哈里斯的策略——哈里斯的低调日程引发政治专家的担忧，他们质疑在距离选举不到三周的情况下，她为何缺乏紧迫感……https://t.co/Mvhejh8Ajo\"\n",
+      "“转发 @CollinRugg: 最新消息：MSNBC的Joy Reid推出新的阴谋论，指责*共和党人*操纵选举，称美国已经被…”\n",
+      "RT @BillieJeanKing: 我们距离美国历史上可能最具影响力的选举还有整整3周的时间。 \\n\\n无论如何强调这一点都不为过…\n",
+      "RT @CallForCongress: 这是一个选举策略\\n\\n立即实施武器禁运\n",
+      "“转发 @ScottAdamsSays: 如果特朗普在当前条件下输掉选举，我将不接受选举结果的有效性。\\n\\n我们距离……”\n",
+      "\"@GuntherEagleman 我不知道，当她赢得选举时你会离开吗？\"\n",
+      "RT @amarDgreat: @sardesairajdeep @ECISVEEP 首席选举专员在新闻发布会上：\\n\\n在哈里亚纳邦结果公布日：\\n我们的计票开始…\n"
+     ]
+    }
+   ],
+   "source": [
+    "tweet_sample = tweets.split(\"\\n\")[:10]\n",
+    "\n",
+    "for tweet in tweet_sample:\n",
+    "    messages = [\n",
+    "        {\"role\": \"system\", \"content\": f\"\"\"translate the tweets delimitered by {delimiter} into Chinese\"\"\"},\n",
+    "        {\"role\": \"user\", \"content\": f\"{delimiter}{tweet}{delimiter} \"}]\n",
+    "\n",
+    "    print(openai_help(messages).strip(delimiter))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "id": "7a2537d7-2f3e-4122-b81a-6cff11dff7d0",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "\"RT @MikeNellis: I'm gonna do this one more time before the big voting day, so here we go... I'm gonna give some of my allowance to @KamalaHarris and all the other people on her team! Yay!\"\n",
+      "Politics is like a big game, but this time it's not just in our backyard! Check it out! https://t.co/rzmTMWE3dc https://t.co/NYCmAYPTb9\n",
+      "\"RT @NotHoodlum: Glenn Youngkin is super worried about people cheating in voting. But he didn't say anything when his own kid, who's 17, got in trouble for it! That's kinda silly, right?\"\n",
+      "\"Hey! Why isn't she doing her work? Some grown-ups are wondering why Harris isn't working super hard. They think she should be doing more stuff 'cause there's only a little bit of time left before the big election day! Check it out here: https://t.co/Mvhejh8Ajo\"\n",
+      "\"RT @CollinRugg: Guess what! Joy Reid from MSNBC is saying something super silly! She thinks the *Republicans* are playing tricks with the election, like when my brother hides my toys! She says America is all mixed up now...\"\n",
+      "RT @BillieJeanKing: In just 3 weeks, there's gonna be a super duper important election in the U.S.! It's like the biggest deal ever! Yay!\n",
+      "RT @CallForCongress: This is a big trick for the grown-up voting stuff! No more toy weapons!\n",
+      "\"RT @ScottAdamsSays: If Trump doesn't win, I won't believe the election was fair. It's like when I lose a game and I think maybe someone cheated. We're not even close to being done with this!\"\n",
+      "\"Hey @GuntherEagleman, if she wins, are you gonna go away? Like, poof?\"\n",
+      "RT @amarDgreat: @sardesairajdeep @ECISVEEP The big boss of counting votes was talking to everyone:\\n\\nOn the day we find out who wins in Haryana:\\nWe started counting the votes and...\n"
+     ]
+    }
+   ],
+   "source": [
+    "tweet_sample = tweets.split(\"\\n\")[:10]\n",
+    "\n",
+    "for tweet in tweet_sample:\n",
+    "    messages = [\n",
+    "        {\"role\": \"system\", \"content\": f\"\"\"rewrite the tweets delimitered by {delimiter} in the tone of 6 years old kid \"\"\"},\n",
+    "        {\"role\": \"user\", \"content\": f\"{delimiter}{tweet}{delimiter} \"}]\n",
+    "\n",
+    "    print(openai_help(messages).strip(delimiter))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "id": "90c33bc7-d38b-4f83-a54e-32c52e44f07d",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "{\n",
+      "  \"sentiment\": \"positive\",\n",
+      "  \"emotion\": \"supportive\",\n",
+      "  \"mentioned\": [\"MikeNellis\", \"KamalaHarris\"],\n",
+      "  \"support\": \"Democrat\"\n",
+      "}\n",
+      "{\n",
+      "  \"sentiment\": \"neutral\",\n",
+      "  \"emotion\": \"indifference\",\n",
+      "  \"mentioned\": [],\n",
+      "  \"support\": \"neutral\"\n",
+      "}\n",
+      "{\n",
+      "  \"sentiment\": \"negative\",\n",
+      "  \"emotion\": \"concern\",\n",
+      "  \"mentioned\": [\"Glenn Youngkin\"],\n",
+      "  \"support\": \"Democrat\"\n",
+      "}\n",
+      "{\n",
+      "  \"sentiment\": \"negative\",\n",
+      "  \"emotion\": \"concern\",\n",
+      "  \"mentioned\": [\"Harris\"],\n",
+      "  \"support\": \"Republican\"\n",
+      "}\n",
+      "{\n",
+      "  \"sentiment\": \"negative\",\n",
+      "  \"emotion\": \"accusatory\",\n",
+      "  \"mentioned\": [\"Joy Reid\", \"Republicans\"],\n",
+      "  \"support\": \"Democrat\"\n",
+      "}\n",
+      "{\n",
+      "  \"sentiment\": \"neutral\",\n",
+      "  \"emotion\": \"anticipation\",\n",
+      "  \"mentioned\": [\"BillieJeanKing\"],\n",
+      "  \"support\": \"neutral\"\n",
+      "}\n",
+      "{\n",
+      "  \"sentiment\": \"neutral\",\n",
+      "  \"emotion\": \"cynicism\",\n",
+      "  \"mentioned\": [\"CallForCongress\"],\n",
+      "  \"support\": \"neutral\"\n",
+      "}\n",
+      "{\n",
+      "  \"sentiment\": \"negative\",\n",
+      "  \"emotion\": \"distrust\",\n",
+      "  \"mentioned\": [\"ScottAdamsSays\", \"Trump\"],\n",
+      "  \"support\": \"Republican\"\n",
+      "}\n",
+      "{\n",
+      "  \"sentiment\": \"neutral\",\n",
+      "  \"emotion\": \"curiosity\",\n",
+      "  \"mentioned\": [\"GuntherEagleman\"],\n",
+      "  \"support\": \"Democrat\"\n",
+      "}\n",
+      "{\n",
+      "  \"sentiment\": \"neutral\",\n",
+      "  \"emotion\": \"informative\",\n",
+      "  \"mentioned\": [\"amarDgreat\", \"sardesairajdeep\", \"ECISVEEP\"],\n",
+      "  \"support\": \"neutral\"\n",
+      "}\n"
+     ]
+    }
+   ],
+   "source": [
+    "tweet_sample = tweets.split(\"\\n\")[:10]\n",
+    "\n",
+    "for tweet in tweet_sample:\n",
+    "    messages = [\n",
+    "        {\"role\": \"system\", \"content\": f\"\"\"analyze the tweet delimitered by {delimiter} in the following steps:\n",
+    "                                        step 1 {delimiter} identify the tweet sentiment in a single word, either positive, negative or neutral;\n",
+    "                                        step 2 {delimiter} identify the emotions expressed in the tweet with a single word;\n",
+    "                                        step 3 {delimiter} extract the mentioned peoples;\n",
+    "                                        step 4 {delimiter} detect whether the tweet support Democra or Replublican, return the resunt in a singple word;\n",
+    "                                        step 5 {delimiter} organize the result in a json document with the keys <sentiment>, <emontion>,<mentioned>, <support>\n",
+    "                                         Do not wrap the json codes in JSON markers and only return the json document\"\"\"},\n",
+    "        {\"role\": \"user\", \"content\": f\"{delimiter}{tweet}{delimiter} \"}]\n",
+    "    print(openai_help(messages))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "id": "449addeb-a0d4-454b-b4b6-7b1a726214ef",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "{\n",
+      "  \"topics\": [\n",
+      "    \"Election Day Donations\",\n",
+      "    \"Local vs National Politics\",\n",
+      "    \"Voter Fraud Concerns\",\n",
+      "    \"Kamala Harris's Campaign Strategy\",\n",
+      "    \"Election Rigging Accusations\",\n",
+      "    \"Significance of Upcoming Election\",\n",
+      "    \"Election Ploys and Strategies\",\n",
+      "    \"Election Outcome Acceptance\",\n",
+      "    \"Election Results Speculation\",\n",
+      "    \"Election Process and Counting\"\n",
+      "  ]\n",
+      "}\n"
+     ]
+    }
+   ],
+   "source": [
+    "tweet_sample = tweets.split(\"\\n\")[:10]\n",
+    "\n",
+    "messages = [\n",
+    "        {\"role\": \"system\", \"content\": f\"\"\"analyze the tweet delimitered by {delimiter} to identify 10 topics, \n",
+    "                                  Do not wrap the json codes in JSON markers \"\"\"},\n",
+    "        {\"role\": \"user\", \"content\": f\"{delimiter}{tweet_sample}{delimiter} \"}]\n",
+    "print(openai_help(messages))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "id": "4977a7c5-d544-4466-8c91-339db12ee804",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "100%|██████████| 100/100 [01:33<00:00,  1.07it/s]\n"
+     ]
+    }
+   ],
+   "source": [
+    "tweet_sample = tweets.split(\"\\n\")[:100]\n",
+    "analysis_result = []\n",
+    "from tqdm import tqdm\n",
+    "for tweet in tqdm(tweet_sample):\n",
+    "    messages = [\n",
+    "        {\"role\": \"system\", \"content\": f\"\"\"analyze the tweet delimitered by {delimiter} in the following steps:\n",
+    "                                        step 1 {delimiter} identify the tweet sentiment in a single word, either positive, negative or neutral;\n",
+    "                                        step 2 {delimiter} identify the emotions expressed in the tweet with a single word;\n",
+    "                                        step 3 {delimiter} extract the mentioned peoples;\n",
+    "                                        step 4 {delimiter} detect whether the tweet support Democra or Replublican, return the resunt in a singple word;\n",
+    "                                        step 5 {delimiter} organize the result in a json document with the keys <sentiment>, <emontion>,<mentioned>, <support>\n",
+    "                                         Do not wrap the json codes in JSON markers and only return the json document\"\"\"},\n",
+    "        {\"role\": \"user\", \"content\": f\"{delimiter}{tweet}{delimiter} \"}]\n",
+    "    analysis_result.append(openai_help(messages))\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 21,
+   "id": "b00fad6a-be03-4d99-ab19-ffd047fcfb38",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "{\n",
+      "  \"Democrat count\": 18,\n",
+      "  \"Republican count\": 30,\n",
+      "  \"Kamala Harris\": {\n",
+      "    \"common sentiments\": [\"positive\", \"negative\"],\n",
+      "    \"common emotions\": [\"supportive\", \"frustration\"]\n",
+      "  },\n",
+      "  \"Donald Trump\": {\n",
+      "    \"common sentiments\": [\"negative\", \"neutral\"],\n",
+      "    \"common emotions\": [\"frustration\", \"informative\"]\n",
+      "  },\n",
+      "  \"Biden-Harris\": {\n",
+      "    \"common sentiments\": [\"negative\"],\n",
+      "    \"common emotions\": [\"anger\"]\n",
+      "  },\n",
+      "  \"MikeNellis\": {\n",
+      "    \"common sentiments\": [\"positive\"],\n",
+      "    \"common emotions\": [\"supportive\"]\n",
+      "  },\n",
+      "  \"Glenn Youngkin\": {\n",
+      "    \"common sentiments\": [\"negative\"],\n",
+      "    \"common emotions\": [\"concern\"]\n",
+      "  },\n",
+      "  \"ScottAdamsSays\": {\n",
+      "    \"common sentiments\": [\"negative\"],\n",
+      "    \"common emotions\": [\"distrust\"]\n",
+      "  },\n",
+      "  \"Joe Rogan\": {\n",
+      "    \"common sentiments\": [\"negative\"],\n",
+      "    \"common emotions\": [\"frustration\"]\n",
+      "  },\n",
+      "  \"MTGrepp\": {\n",
+      "    \"common sentiments\": [\"neutral\", \"negative\"],\n",
+      "    \"common emotions\": [\"frustration\"]\n",
+      "  },\n",
+      "  \"SenJohnKennedy\": {\n",
+      "    \"common sentiments\": [\"negative\"],\n",
+      "    \"common emotions\": [\"anger\"]\n",
+      "  },\n",
+      "  \"whstancil\": {\n",
+      "    \"common sentiments\": [\"negative\"],\n",
+      "    \"common emotions\": [\"frustration\"]\n",
+      "  },\n",
+      "  \"RealMattCouch\": {\n",
+      "    \"common sentiments\": [\"negative\"],\n",
+      "    \"common emotions\": [\"outrage\"]\n",
+      "  },\n",
+      "  \"Kamala\": {\n",
+      "    \"common sentiments\": [\"positive\", \"negative\"],\n",
+      "    \"common emotions\": [\"supportive\", \"criticism\"]\n",
+      "  },\n",
+      "  \"Trump DOJ\": {\n",
+      "    \"common sentiments\": [\"negative\"],\n",
+      "    \"common emotions\": [\"outrage\"]\n",
+      "  },\n",
+      "  \"Douglas Emhoff\": {\n",
+      "    \"common sentiments\": [\"neutral\"],\n",
+      "    \"common emotions\": [\"concern\"]\n",
+      "  },\n",
+      "  \"SpeakerJohnson\": {\n",
+      "    \"common sentiments\": [\"negative\"],\n",
+      "    \"common emotions\": [\"frustration\"]\n",
+      "  },\n",
+      "  \"themarketswork\": {\n",
+      "    \"common sentiments\": [\"negative\"],\n",
+      "    \"common emotions\": [\"criticism\"]\n",
+      "  },\n",
+      "  \"OccupyDemocrats\": {\n",
+      "    \"common sentiments\": [\"positive\"],\n",
+      "    \"common emotions\": [\"satisfaction\"]\n",
+      "  },\n",
+      "  \"AngelaBelcamino\": {\n",
+      "    \"common sentiments\": [\"neutral\"],\n",
+      "    \"common emotions\": [\"nostalgic\"]\n",
+      "  },\n",
+      "  \"BrandtRobinson\": {\n",
+      "    \"common sentiments\": [\"negative\"],\n",
+      "    \"common emotions\": [\"frustration\"]\n",
+      "  },\n",
+      "  \"Biden\": {\n",
+      "    \"common sentiments\": [\"negative\"],\n",
+      "    \"common emotions\": [\"frustration\"]\n",
+      "  },\n",
+      "  \"krassenstein\": {\n",
+      "    \"common sentiments\": [\"negative\"],\n",
+      "    \"common emotions\": [\"disapproval\"]\n",
+      "  },\n",
+      "  \"julie_kelly2\": {\n",
+      "    \"common sentiments\": [\"neutral\"],\n",
+      "    \"common emotions\": [\"anticipation\"]\n",
+      "  },\n",
+      "  \"rekharanibsp\": {\n",
+      "    \"common sentiments\": [\"neutral\"],\n",
+      "    \"common emotions\": [\"informative\"]\n",
+      "  },\n",
+      "  \"TristanSnell\": {\n",
+      "    \"common sentiments\": [\"neutral\"],\n",
+      "    \"common emotions\": [\"informative\"]\n",
+      "  },\n",
+      "  \"jimg358\": {\n",
+      "    \"common sentiments\": [\"negative\"],\n",
+      "    \"common emotions\": [\"concern\"]\n",
+      "  }\n",
+      "}\n"
+     ]
+    }
+   ],
+   "source": [
+    "messages = [\n",
+    "        {\"role\": \"system\", \"content\": f\"\"\"analyze the tweet analysis reuslt delimitered by {delimiter} in the following steps:\n",
+    "                                        step 1 {delimiter} count the number of tweets that support Democrat and Republican;\n",
+    "                                        step 2 {delimiter} identify the common sentiments and emotoions to each mentioned people;\n",
+    "                                        step 3 {delimiter} organize the result in a json document with keys <Democat count>, <Republican count>, <people name>\n",
+    "                                         Do not wrap the json codes in JSON markers and only return the json document\"\"\"},\n",
+    "        {\"role\": \"user\", \"content\": f\"{delimiter}{analysis_result}{delimiter} \"}]\n",
+    "analysis_summary = openai_help(messages)\n",
+    "print(analysis_summary)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 22,
+   "id": "a85b75d3-5748-4693-ba0a-3c3fda8744b9",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "from openai import OpenAI\n",
+    "\n",
+    "openai_api_key  = get_secret('openai')['api_key']\n",
+    "client = OpenAI(api_key=openai_api_key)\n",
+    "model = 'gpt-4o'\n",
+    "temperature = 0\n",
+    "\n",
+    "chat_history = [\n",
+    "\n",
+    "{\"role\": \"system\", \"content\": f\"\"\"you are an election chabot anwser user questions based on the tweets {delimiter} to answer user questions,\n",
+    "                                {delimiter}{tweet_sample}{delimiter} \n",
+    "                                if user mentioned a people name in the {analysis_summary} people field,report the corresponding sentiment and emotion,\n",
+    "                            \n",
+    "                            \"\"\"}\n",
+    "]\n",
+    "\n",
+    "def chatbot(prompt):\n",
+    "\n",
+    "    chat_history.append({\"role\": \"user\", \"content\": prompt})\n",
+    "\n",
+    "    response = client.chat.completions.create(\n",
+    "        model=model,  # Use the model you prefer\n",
+    "        messages=chat_history\n",
+    "    )\n",
+    "\n",
+    "    reply = response.choices[0].message.content\n",
+    "\n",
+    "    chat_history.append({\"role\": \"assistant\", \"content\": reply})\n",
+    "    \n",
+    "    return reply"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 23,
+   "id": "bf13c05c-4d30-45a6-8042-ca99699683b4",
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdin",
+     "output_type": "stream",
+     "text": [
+      "You:  List something.\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Chatbot: Could you please specify what you would like me to list?\n"
+     ]
+    },
+    {
+     "name": "stdin",
+     "output_type": "stream",
+     "text": [
+      "You:  Exit\n"
+     ]
+    },
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Chatbot: Goodbye!\n"
+     ]
+    }
+   ],
+   "source": [
+    "while True:\n",
+    "    user_input = input(\"You: \")\n",
+    "    if user_input.lower() in ['exit', 'quit']:\n",
+    "        print(\"Chatbot: Goodbye!\")\n",
+    "        break\n",
+    "    reply = chatbot(user_input)\n",
+    "    print(f\"Chatbot: {reply}\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "1ee3f3f1-1e53-4d44-941e-334af09521bf",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "conda_python3",
+   "language": "python",
+   "name": "conda_python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.10.14"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
